@@ -21,31 +21,42 @@ class Form(QDialog):
     def __init__(self, parent=None):
         super(Form, self).__init__(parent)
 
+        # Get FOREX data
         date = self.getdata()
+        # Sort the rates by Currency name
         rates = sorted(self.rates.keys())
 
+        # Create a label widget with the date
         dateLabel = QLabel(date)
+        # Comboboxes are 'pull-down' menus
         self.fromComboBox = QComboBox()
+        # The contents of the pull-down are the sorted currency names
         self.fromComboBox.addItems(rates)
+        # Spinbox that handles float values
         self.fromSpinBox = QDoubleSpinBox()
-        self.fromSpinBox.setRange(0.01, 10000000.00)
-        self.fromSpinBox.setValue(1.00)
+        self.fromSpinBox.setRange(0.01, 10000000.00)  # Spinbox range
+        self.fromSpinBox.setValue(1.00)  # Spinbox initial value
+        # Create combobox for the target currency
         self.toComboBox = QComboBox()
+        # The contents of the pull-down are also the sorted currency names
         self.toComboBox.addItems(rates)
+        # toLabel gets updated for every conversion but we initially set it to 1.00
         self.toLabel = QLabel("1.00")
+        # Use grid layout for the widgets
         grid = QGridLayout()
+        # add the widgets to the grid by specifying the row and column location
         grid.addWidget(dateLabel, 0, 0)
         grid.addWidget(self.fromComboBox, 1, 0)
         grid.addWidget(self.fromSpinBox, 1, 1)
         grid.addWidget(self.toComboBox, 2, 0)
         grid.addWidget(self.toLabel, 2, 1)
+        # Set the Form's main layout to grid
         self.setLayout(grid)
-        self.connect(self.fromComboBox,
-                SIGNAL("currentIndexChanged(int)"), self.updateUi)
-        self.connect(self.toComboBox,
-                SIGNAL("currentIndexChanged(int)"), self.updateUi)
-        self.connect(self.fromSpinBox,
-                SIGNAL("valueChanged(double)"), self.updateUi)
+        # Signals and slots. We now define what happens when a widget emits an event
+        self.fromComboBox.currentIndexChanged.connect(self.updateUi)
+        self.toComboBox.currentIndexChanged.connect(self.updateUi)
+        self.fromSpinBox.valueChanged.connect(self.updateUi)
+        # Set the window title
         self.setWindowTitle("Currency")
 
 
@@ -56,14 +67,15 @@ class Form(QDialog):
                   self.fromSpinBox.value())
         self.toLabel.setText("{0:.2f}".format(amount))
 
-
-    def getdata(self): # Idea taken from the Python Cookbook
+    # TODO: Find another way of getting csv data. Rates are not working
+    def getdata(self):  # Idea taken from the Python Cookbook
         self.rates = {}
         try:
             date = "Unknown"
-            data = urllib.request.urlopen("http://www.bankofcanada.ca"
-                    "/en/markets/csv/exchange_eng.csv").read()
-            for line in data.decode("utf-8", "replace").split("\n"):
+            data = open(r"C:\Users\msapunga\Downloads"
+                        r"\FX_RATES_DAILY-sd-2017-01-03.csv", 'r').read()
+            print(data)
+            for line in data.split("\n"):
                 line = line.rstrip()
                 if not line or line.startswith(("#", "Closing ")):
                     continue
@@ -80,9 +92,12 @@ class Form(QDialog):
         except Exception as e:
             return "Failed to download:\n{}".format(e)
 
-
+# Create the application object
 app = QApplication(sys.argv)
+# Create a Form instance
 form = Form()
+# Paint the Form GUI
 form.show()
+# Run main application's event loop
 app.exec_()
 

@@ -10,8 +10,9 @@
 # the GNU General Public License for more details.
 
 import sys
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 
 
 class Form(QDialog):
@@ -28,8 +29,8 @@ class Form(QDialog):
         layout.addWidget(spinbox)
         self.setLayout(layout)
 
-        self.connect(dial, SIGNAL("valueChanged(int)"), spinbox.setValue)
-        self.connect(spinbox, SIGNAL("valueChanged(int)"), dial.setValue)
+        dial.valueChanged.connect(spinbox.setValue)
+        spinbox.valueChanged.connect(dial.setValue)
         self.setWindowTitle("Signals and Slots")
 
 
