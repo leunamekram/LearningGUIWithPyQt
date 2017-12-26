@@ -72,8 +72,7 @@ class Form(QDialog):
         self.rates = {}
         try:
             date = "Unknown"
-            data = open(r"C:\Users\msapunga\Downloads"
-                        r"\FX_RATES_DAILY-sd-2017-01-03.csv", 'r').read()
+            data = open(r".\FX_RATES_DAILY-sd-2017-01-03.csv", 'r').read()
             print(data)
             for line in data.split("\n"):
                 line = line.rstrip()
