@@ -91,9 +91,13 @@ class Form3(QDialog):
         layout.addWidget(zerospinbox)
         self.setLayout(layout)
 
+        # Connect the dial signal to zerospinbox slot
         dial.valueChanged.connect(zerospinbox.setValue)
+        # Connect the zerospinbox signal to dial slot
         zerospinbox.valueChanged.connect(dial.setValue)
+        # Connect the zerospinbox userdefined signal to Form slot
         zerospinbox.atzero.connect(self.announce)
+
         self.setWindowTitle("Signals and Slots")
 
     def announce(self, zeros):
@@ -101,7 +105,7 @@ class Form3(QDialog):
 
 
 class Form4(QDialog):
-
+    # An example of capturing text change signal from linedit
     def __init__(self, parent=None):
         super(Form4, self).__init__(parent)
 
@@ -111,8 +115,7 @@ class Form4(QDialog):
         layout.addWidget(lineedit)
         self.setLayout(layout)
 
-        self.connect(lineedit, SIGNAL("textChanged(QString)"),
-                     self.consoleEcho)
+        lineedit.textChanged.connect(self.consoleEcho)
         self.setWindowTitle("Signals and Slots")
 
     def consoleEcho(self, text):
@@ -120,7 +123,9 @@ class Form4(QDialog):
 
 
 class TaxRate(QObject):
+    rateChanged = pyqtSignal(float, name='rateChanged')
 
+    # An example of using the signals and slots on any QObject subclass
     def __init__(self):
         super(TaxRate, self).__init__()
         self.__rate = 17.5
@@ -128,10 +133,12 @@ class TaxRate(QObject):
     def rate(self):
         return self.__rate
 
-    def setRate(self, rate):
+    # A standard way of writing slots is to priorly check if the new value is
+    # different with the current value
+    def setRate(self, rate: float):
         if rate != self.__rate:
             self.__rate = rate
-            self.emit(SIGNAL("rateChanged"), self.__rate)
+            self.rateChanged.emit(self.__rate)
 
 
 def rateChanged(value):
@@ -141,7 +148,7 @@ def rateChanged(value):
 app = QApplication(sys.argv)
 form = None
 if len(sys.argv) == 1 or sys.argv[1] == "1":
-    form = Form3()
+    form = Form()
 elif sys.argv[1] == "2":
     form = Form2()
 elif sys.argv[1] == "3":
@@ -153,6 +160,6 @@ if form is not None:
     app.exec_()
 else:  # if sys.argv[1] == "5"
     vat = TaxRate()
-    vat.connect(vat, SIGNAL("rateChanged"), rateChanged)
+    vat.rateChanged.connect(rateChanged)
     vat.setRate(17.5)    # No change will occur (new rate is the same)
     vat.setRate(8.5)     # A change will occur (new rate is different)
