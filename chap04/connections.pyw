@@ -11,8 +11,9 @@
 
 import functools
 import sys
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 
 
 class Form(QDialog):
@@ -37,28 +38,31 @@ class Form(QDialog):
         layout.addWidget(self.label)
         self.setLayout(layout)
 
-        self.connect(button1, SIGNAL("clicked()"), self.one)
+        button1.clicked.connect(self.one)
+        # Wrapping the anyButton method with a parameter that says
+        # which button was called
         self.button2callback = functools.partial(self.anyButton, "Two")
-        self.connect(button2, SIGNAL("clicked()"),
-                     self.button2callback)
-        self.button3callback = lambda who="Three": self.anyButton(who)
-        self.connect(button3, SIGNAL("clicked()"),
-                     self.button3callback)
-        self.connect(button4, SIGNAL("clicked()"), self.clicked)
-        self.connect(button5, SIGNAL("clicked()"), self.clicked)
+        # Connecting the wrapped slot to the button2 signal
+        button2.clicked.connect(self.button2callback)
+        # Avoiding partial and wrapping the anyButton method using lambda
+        self.button3callback = lambda who: self.anyButton(who="Three")
+        # Connecting the wrapped slot to the button3 signal
+        # button3.clicked.connect(self.button3callback)
+        button3.clicked.connect(lambda who: self.anyButton(who="Three"))
+        # Connecting button4 and button5 to unwrapped slot clicked
+        button4.clicked.connect(self.clicked)
+        button5.clicked.connect(self.clicked)
 
         self.setWindowTitle("Connections")
-
 
     def one(self):
         self.label.setText("You clicked button 'One'")
 
-
     def anyButton(self, who):
         self.label.setText("You clicked button '{}'".format(who))
 
-
     def clicked(self):
+        # sender() returns None if clicked was involved by a simple function call
         button = self.sender()
         if button is None or not isinstance(button, QPushButton):
             return
@@ -70,4 +74,3 @@ app = QApplication(sys.argv)
 form = Form()
 form.show()
 app.exec_()
-
