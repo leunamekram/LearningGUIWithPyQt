@@ -11,8 +11,8 @@
 
 import functools
 import sys
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
+# from PyQt5.QtCore import *
+# from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
 
@@ -31,6 +31,7 @@ class Form(QDialog):
         button8 = QPushButton("COMMAND_WRITE_ECC_DISABLED")
         self.label = QLabel("Click a button...")
 
+        self.groupbox = QGroupBox('FW API Commands')
         grid = QGridLayout()
         grid.addWidget(button1, 0, 0)
         grid.addWidget(button2, 0, 1)
@@ -40,8 +41,11 @@ class Form(QDialog):
         grid.addWidget(button6, 1, 1)
         grid.addWidget(button7, 1, 2)
         grid.addWidget(button8, 1, 3)
-        grid.addWidget(self.label, 2, 0)
-        self.setLayout(grid)
+        self.groupbox.setLayout(grid)
+        mainlayout = QVBoxLayout()
+        mainlayout.addWidget(self.groupbox)
+        mainlayout.addWidget(self.label)
+        self.setLayout(mainlayout)
 
         button1.clicked.connect(self.clicked)
         button2.clicked.connect(self.clicked)
@@ -57,11 +61,10 @@ class Form(QDialog):
     def clicked(self):
         # sender() returns None if clicked was involved by a simple function call
         button = self.sender()
-        print(button)
         if button is None or not isinstance(button, QPushButton):
             return
         self.label.setText("You clicked button '{}'".format(
-                           button.__name__()))
+                           button.text()))
 
 
 app = QApplication(sys.argv)
