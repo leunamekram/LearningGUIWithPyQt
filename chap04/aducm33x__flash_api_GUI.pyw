@@ -20,33 +20,31 @@ class Form(QDialog):
 
     def __init__(self, parent=None):
         super(Form, self).__init__(parent)
-
-        button1 = QPushButton("COMMAND_ERASEPAGE")
-        button2 = QPushButton("COMMAND_MASSERASEPROG")
-        button3 = QPushButton("COMMAND_MASSERASEDATA")
-        button4 = QPushButton("COMMAND_MASSERASEALLDATA")
-        button5 = QPushButton("COMMAND_WRITE")
-        button6 = QPushButton("COMMAND_READ")
-        button7 = QPushButton("COMMAND_WRITEPAGEWORD")
-        button8 = QPushButton("COMMAND_WRITE_ECC_DISABLED")
-        self.label = QLabel("Click a button...")
-
-        self.groupbox = QGroupBox('FW API Commands')
-        grid = QGridLayout()
-        grid.addWidget(button1, 0, 0)
-        grid.addWidget(button2, 0, 1)
-        grid.addWidget(button3, 0, 2)
-        grid.addWidget(button4, 0, 3)
-        grid.addWidget(button5, 1, 0)
-        grid.addWidget(button6, 1, 1)
-        grid.addWidget(button7, 1, 2)
-        grid.addWidget(button8, 1, 3)
-        self.groupbox.setLayout(grid)
+        # Create the first group box
+        self.groupbox1 = self.createFormGroupBox1()
+        self.groupbox2 = self.createFormGroupBox2()
+        self.label = QLabel("Status: Ready")
         mainlayout = QVBoxLayout()
-        mainlayout.addWidget(self.groupbox)
+        mainlayout.addWidget(self.groupbox1)
+        mainlayout.addWidget(self.groupbox2)
         mainlayout.addWidget(self.label)
         self.setLayout(mainlayout)
+        self.setFixedSize(self.sizeHint())
+        self.setWindowTitle("Flash Test Tool Raw API")
 
+    def createFormGroupBox1(self):
+        # Add buttons
+        button1 = QPushButton("Mass Erase Prog")
+        button2 = QPushButton("Mass Erase Data (2kB)")
+        button3 = QPushButton("Mass Erase Data (4kB)")
+        button4 = QPushButton("Erase Page")
+        button5 = QPushButton("Write")
+        button6 = QPushButton("Write Word-Page")
+        button7 = QPushButton("Write w/o ECC")
+        button8 = QPushButton("Read")
+
+        # Connect button signals to slot(s)
+        # TODO: Add proper button actions
         button1.clicked.connect(self.clicked)
         button2.clicked.connect(self.clicked)
         button3.clicked.connect(self.clicked)
@@ -56,15 +54,47 @@ class Form(QDialog):
         button7.clicked.connect(self.clicked)
         button8.clicked.connect(self.clicked)
 
-        self.setWindowTitle("FLash Tool Tester")
+        # Create the group box object
+        groupbox = QGroupBox('FW API Commands')
+
+        # Create the layout
+        layout = QGridLayout()
+        layout.addWidget(button1, 0, 0)
+        layout.addWidget(button2, 0, 1)
+        layout.addWidget(button3, 0, 2)
+        layout.addWidget(button4, 0, 3)
+        layout.addWidget(button5, 1, 0)
+        layout.addWidget(button6, 1, 1)
+        layout.addWidget(button7, 1, 2)
+        layout.addWidget(button8, 1, 3)
+
+        # Set groupbox layout
+        groupbox.setLayout(layout)
+        groupbox.clearFocus()
+        return groupbox
+
+    def createFormGroupBox2(self):
+        # Create the groupbox
+        groupbox = QGroupBox('FW API Entries')
+
+        # Create the layout
+        layout = QFormLayout()
+        layout.addRow(QLabel("Address:"), QLineEdit())
+        layout.addRow(QLabel("Read/Write Size:"), QLineEdit())
+        layout.addRow(QLabel("FEEDATAH:"), QLineEdit())
+        layout.addRow(QLabel("FEEDATAL:"), QLineEdit())
+
+        # Set groupbox layout
+        groupbox.setLayout(layout)
+        return groupbox
 
     def clicked(self):
-        # sender() returns None if clicked was involved by a simple function call
+        # sender() returns None if clicked was invoked by a simple function call
         button = self.sender()
         if button is None or not isinstance(button, QPushButton):
             return
-        self.label.setText("You clicked button '{}'".format(
-                           button.text()))
+        self.label.setText("Status: '{}' clicked".format(
+            button.text()))
 
 
 app = QApplication(sys.argv)
