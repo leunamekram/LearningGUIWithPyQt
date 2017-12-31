@@ -11,26 +11,37 @@
 
 import functools
 import sys
-# from PyQt5.QtCore import *
-# from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
 
 class Form(QDialog):
 
+    # GUI class variables
+    address_entry = 0
+    address = None
+    size_entry = 0
+    size = None
+    feedatah_entry = 0
+    feedatah = None
+    feedatal_entry = 0
+    feedatal = None
+
     def __init__(self, parent=None):
         super(Form, self).__init__(parent)
         # Create the first group box
-        self.groupbox1 = self.createFormGroupBox1()
-        self.groupbox2 = self.createFormGroupBox2()
-        self.label = QLabel("Status: Ready")
+        groupbox1 = self.createFormGroupBox1()
+        groupbox2 = self.createFormGroupBox2()
+        self.status = QLabel("Status: Ready")
         mainlayout = QVBoxLayout()
-        mainlayout.addWidget(self.groupbox1)
-        mainlayout.addWidget(self.groupbox2)
-        mainlayout.addWidget(self.label)
+        mainlayout.addWidget(groupbox1)
+        mainlayout.addWidget(groupbox2)
+        mainlayout.addWidget(self.status)
         self.setLayout(mainlayout)
         self.setFixedSize(self.sizeHint())
         self.setWindowTitle("Flash Test Tool Raw API")
+        self.getTextEntries()
 
     def createFormGroupBox1(self):
         # Add buttons
@@ -42,6 +53,16 @@ class Form(QDialog):
         button6 = QPushButton("Write Word-Page")
         button7 = QPushButton("Write w/o ECC")
         button8 = QPushButton("Read")
+
+        # Button properties
+        button1.setFocusPolicy(Qt.NoFocus)
+        button2.setFocusPolicy(Qt.NoFocus)
+        button3.setFocusPolicy(Qt.NoFocus)
+        button4.setFocusPolicy(Qt.NoFocus)
+        button5.setFocusPolicy(Qt.NoFocus)
+        button6.setFocusPolicy(Qt.NoFocus)
+        button7.setFocusPolicy(Qt.NoFocus)
+        button8.setFocusPolicy(Qt.NoFocus)
 
         # Connect button signals to slot(s)
         # TODO: Add proper button actions
@@ -77,12 +98,24 @@ class Form(QDialog):
         # Create the groupbox
         groupbox = QGroupBox('FW API Entries')
 
+        # Text entry widgets
+        self.address = QLineEdit('0x0')
+        self.size = QLineEdit('0x0')
+        self.feedatah = QLineEdit('0x0')
+        self.feedatal = QLineEdit('0x0')
+
+        # Assign text entry widgets to slots
+        self.address.returnPressed.connect(self.getTextEntries)
+        self.size.returnPressed.connect(self.getTextEntries)
+        self.feedatal.returnPressed.connect(self.getTextEntries)
+        self.feedatah.returnPressed.connect(self.getTextEntries)
+
         # Create the layout
         layout = QFormLayout()
-        layout.addRow(QLabel("Address:"), QLineEdit())
-        layout.addRow(QLabel("Read/Write Size:"), QLineEdit())
-        layout.addRow(QLabel("FEEDATAH:"), QLineEdit())
-        layout.addRow(QLabel("FEEDATAL:"), QLineEdit())
+        layout.addRow(QLabel("Address:"), self.address)
+        layout.addRow(QLabel("Read/Write Size:"), self.size)
+        layout.addRow(QLabel("FEEDATAH:"), self.feedatah)
+        layout.addRow(QLabel("FEEDATAL:"), self.feedatal)
 
         # Set groupbox layout
         groupbox.setLayout(layout)
@@ -90,11 +123,26 @@ class Form(QDialog):
 
     def clicked(self):
         # sender() returns None if clicked was invoked by a simple function call
-        button = self.sender()
-        if button is None or not isinstance(button, QPushButton):
+        sender = self.sender()
+
+        # This should be called by a valid widget
+        if sender is None or not isinstance(sender, QPushButton):
             return
-        self.label.setText("Status: '{}' clicked".format(
-            button.text()))
+
+        if self.getTextEntries():
+            self.status.setText("Status: Command '{}'".format(sender.text()))
+            # Call API command here via dictionary
+
+    def getTextEntries(self):
+        try:
+            self.address_entry = int(self.address.text(), 16)
+            self.size_entry = int(self.size.text(), 16)
+            self.feedatah_entry = int(self.feedatah.text(), 16)
+            self.feedatal_entry = int(self.feedatal.text(), 16)
+            return True
+        except ValueError as e:
+            self.status.setText("Status: '{}'".format(e))
+            return False
 
 
 app = QApplication(sys.argv)
